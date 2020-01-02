@@ -60,7 +60,7 @@ namespace EndlessRunner
 
         public static void DoEffects(string soundEffectClipName, Material material)
         {
-            ScreenShake.Shake();
+           // ScreenShake.Shake();
 
             SoundManager.PlaySoundEffect(soundEffectClipName);
 

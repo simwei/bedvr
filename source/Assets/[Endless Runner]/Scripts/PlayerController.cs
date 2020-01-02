@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using UnityEngine;
 
 namespace EndlessRunner
@@ -12,7 +13,14 @@ namespace EndlessRunner
         [SerializeField]
         private Renderer[] m_bodyRenderers;
         [SerializeField]
-        private float m_horizontalSpeed = 1f, m_verticalSpeed = 1f, m_fieldOfViewMultiplier = 1f, m_fieldOfViewLimit = 70f;
+        private float m_horizontalSpeed = 0.2f,
+            m_verticalSpeed = 1f, m_fieldOfViewMultiplier = 1f, m_fieldOfViewLimit = 70f;
+
+        private bool m_isMoving = false;
+
+        private const float m_right = 4, m_middle = 0, m_left = -4;
+        private float m_movingTarget = 0;
+        private float m_currentPosition = 0;
 
         private Rigidbody m_rigidbody;
         private ParticleSystem[] m_particles;
@@ -30,7 +38,8 @@ namespace EndlessRunner
 
             SetMaterialColors(GameDirector.RandomColor());
 
-            StartCoroutine(MoveCameraTargetIn());
+            UIManager.UpdateCurrentScore(0);
+            //StartCoroutine(MoveCameraTargetIn());
         }
 
         void Update()
@@ -46,15 +55,38 @@ namespace EndlessRunner
             }
 
             // Get movement value.
-            m_movement = new Vector3(Input.GetAxis("Horizontal"), 0, 0);
+
+            if (Input.GetButtonDown("Fire2"))
+            {
+                if (m_movingTarget == m_right) return;
+
+                m_movingTarget += m_right;
+
+
+            }
+
+            if (Input.GetButtonDown("Fire1"))
+            {
+                if (m_movingTarget == m_left) return;
+
+                m_movingTarget += m_left;
+
+            }
+        }
+
+        private void DoMove()
+        {
+            throw new NotImplementedException();
         }
 
         void FixedUpdate()
         {
             if (!m_canMove) return;
 
-            // Execute movement.
-            m_rigidbody.MovePosition(m_rigidbody.position + m_movement * m_horizontalSpeed * Time.fixedDeltaTime);
+
+
+            // Execute movement
+            m_rigidbody.MovePosition(m_rigidbody.position + new Vector3(m_horizontalSpeed * Math.Sign(m_movingTarget - m_rigidbody.position.x), 0, 0));
         }
 
         void OnCollisionEnter(Collision collision)
@@ -75,7 +107,7 @@ namespace EndlessRunner
 
         public void Reload()
         {
-            StopCoroutine("MoveCameraTargetOut");
+            //StopCoroutine("MoveCameraTargetOut");
 
             // Restart player position and rotation.
             transform.position = m_playerStartPosition;
@@ -90,7 +122,7 @@ namespace EndlessRunner
 
             GameDirector.ResetGame();
 
-            StartCoroutine(MoveCameraTargetIn());
+            //StartCoroutine(MoveCameraTargetIn());
         }
 
         public void Death()
@@ -102,8 +134,8 @@ namespace EndlessRunner
 
             HandleComponents(false);
 
-            StopCoroutine("Zoom");
-            StartCoroutine("MoveCameraTargetOut");
+            //StopCoroutine("Zoom");
+            //StartCoroutine("MoveCameraTargetOut");
 
             GameDirector.ShowScoreResults();
         }
@@ -114,6 +146,8 @@ namespace EndlessRunner
             {
                 m_bodyRenderers[i].sharedMaterial = materialColor;
             }
+
+            UIManager.UpdateCurrentMaterial(materialColor);
         }
 
         private void Initialize()
@@ -132,8 +166,8 @@ namespace EndlessRunner
 
         private void HandleComponents(bool enable)
         {
-            SetRenderersVisibility(enable);
-
+            SetRenderersVisibility(false);
+           
             m_rigidbody.isKinematic = !enable;
             m_canMove = enable;
             m_canJump = enable;
@@ -142,42 +176,12 @@ namespace EndlessRunner
         private void DoJump()
         {
             // Execute zoom (cam and world scroll).
-            StartCoroutine("Zoom");
+            //StartCoroutine("Zoom");
 
             SoundManager.PlaySoundEffect("PlayerJump");
 
-            for (int i = 0; i < m_particles.Length; i++)
-            {
-                m_particles[i].Play();
-            }
-
             // Execute jump.
             m_rigidbody.AddRelativeForce(Vector3.up * m_verticalSpeed, ForceMode.Impulse);
-        }
-
-        private IEnumerator Zoom()
-        {
-            var camera = GlobalVariables.CameraMain;
-
-            var lastFieldOfView = camera.fieldOfView;
-
-            while (!m_canJump)
-            {
-                camera.fieldOfView += Time.deltaTime * m_fieldOfViewMultiplier;
-                camera.fieldOfView = Mathf.Min(camera.fieldOfView, m_fieldOfViewLimit);
-
-                yield return null;
-            }
-
-            while (camera.fieldOfView > lastFieldOfView + 1)
-            {
-                camera.fieldOfView -= Time.deltaTime * m_fieldOfViewMultiplier;
-                camera.fieldOfView = Mathf.Max(camera.fieldOfView, lastFieldOfView);
-
-                yield return null;
-            }
-
-            camera.fieldOfView = lastFieldOfView;
         }
 
         private IEnumerator MoveCameraTargetIn()

@@ -20,6 +20,8 @@ namespace EndlessRunner
             }
         }
 
+        public static Color m_color;
+
         private static PlayerController m_player;
         public static PlayerController Player
         {

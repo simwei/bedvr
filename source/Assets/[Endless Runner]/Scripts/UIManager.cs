@@ -14,6 +14,9 @@ namespace EndlessRunner
         private Text m_textBestScore;
         [SerializeField]
         private Button m_buttonPlay;
+        [SerializeField]
+        private Image m_currentMaterial;
+
 
         void Start()
         {
@@ -31,6 +34,11 @@ namespace EndlessRunner
         public static void UpdateCurrentScore(int currentScore)
         {
             Instance.m_textCurrentScore.text = string.Format("SCORE: {0}", currentScore);
+        }
+
+        public static void UpdateCurrentMaterial(Material material)
+        {
+            Instance.m_currentMaterial.color = material.color;
         }
 
         public static void UpdateResultScores(int finalScore, int bestScore)

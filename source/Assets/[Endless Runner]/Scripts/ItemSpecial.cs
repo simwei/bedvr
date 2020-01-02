@@ -9,7 +9,7 @@ namespace EndlessRunner
 
         public override void Reset()
         {
-            transform.localPosition = new Vector3(Random.Range(-5f, 5f), 0, 0);
+            transform.localPosition = new Vector3(Random.Range(-1, 1) * 4, 0, 0);
         }
 
         protected override void OnCollisionEnter(Collision collision)

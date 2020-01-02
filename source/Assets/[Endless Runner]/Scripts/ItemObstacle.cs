@@ -37,7 +37,7 @@ namespace EndlessRunner
         {
             GlobalVariables.SpawnAtPlayerDirection = !GlobalVariables.SpawnAtPlayerDirection;
 
-            return GlobalVariables.SpawnAtPlayerDirection ? GlobalVariables.Player.transform.position.x : Random.Range(-5f, 5f);
+            return GlobalVariables.SpawnAtPlayerDirection ? GlobalVariables.Player.transform.position.x : Random.Range(-1, 1) * 4;
         }
     }
 }
